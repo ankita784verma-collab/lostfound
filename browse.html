@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Browse items — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<section class="section" style="padding-top:40px;">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Browse reports</h2>
+        <p id="result-count">Loading…</p>
+      </div>
+      <div class="section-tabs" id="type-tabs">
+        <a href="#" class="type-filter-btn active" data-type="">All</a>
+        <a href="#" class="type-filter-btn" data-type="lost">Lost</a>
+        <a href="#" class="type-filter-btn" data-type="found">Found</a>
+      </div>
+    </div>
+
+    <form id="filter-form" class="form-card" style="margin-bottom:28px; padding:20px;">
+      <input type="hidden" name="type" value="{{ request.args.get('type', '') }}">
+      <div class="form-two-col" style="grid-template-columns: 2fr 1fr 1fr 1fr;">
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="q">Keyword</label>
+          <input type="text" name="q" id="q" placeholder="Search title or description" value="{{ request.args.get('q','') }}">
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="category">Category</label>
+          <select name="category" id="category">
+            <option value="">Any</option>
+            {% for c in categories %}
+              <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="location">Location</label>
+          <input type="text" name="location" id="location" placeholder="Any location">
+        </div>
+        <div class="form-row" style="margin-bottom:0;">
+          <label for="status">Status</label>
+          <select name="status" id="status">
+            <option value="">Any</option>
+            <option value="open" selected>Open</option>
+            <option value="matched">Matched</option>
+            <option value="resolved">Resolved</option>
+          </select>
+        </div>
+      </div>
+    </form>
+
+    <div class="tag-grid" id="results-grid"></div>
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 5 6v6c0 5 3 8.5 7 9 4-.5 7-4 7-9V6l-7-4Z"/></svg>
+      <p>No items match your filters yet. Try widening your search.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Reflect any query params passed from the homepage quick-search into the filter form
+  document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const typeVal = params.get("type") || "";
+    document.querySelectorAll(".type-filter-btn").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.type === typeVal);
+    });
+    if (params.get("location")) document.getElementById("location").value = params.get("location");
+    if (params.get("category")) document.getElementById("category").value = params.get("category");
+    if (params.get("q")) document.getElementById("q").value = params.get("q");
+  });
+</script>
+{% endblock %}

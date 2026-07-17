@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }} — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="detail-grid">
+  <div class="detail-media">
+    {% if item.image_path %}
+      <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" alt="{{ item.title }}" style="width:100%;height:100%;object-fit:cover;">
+    {% else %}
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 5 6v6c0 5 3 8.5 7 9 4-.5 7-4 7-9V6l-7-4Z"/></svg>
+    {% endif %}
+  </div>
+
+  <div class="detail-panel">
+    <span class="tag-type {{ 'tag-type--lost' if item.item_type=='lost' else 'tag-type--found' }}">{{ item.item_type }}</span>
+    <h1>{{ item.title }}</h1>
+    <span class="status-pill status-pill--{{ item.status }}">{{ item.status }}</span>
+
+    <div class="detail-facts">
+      <div class="detail-fact"><span>Ticket</span><span>#{{ '%05d' % item.id }}</span></div>
+      <div class="detail-fact"><span>Category</span><span>{{ item.category }}</span></div>
+      <div class="detail-fact"><span>Location</span><span>{{ item.location }}</span></div>
+      <div class="detail-fact"><span>{{ 'Date lost' if item.item_type=='lost' else 'Date found' }}</span><span>{{ item.event_date }}</span></div>
+      <div class="detail-fact"><span>Reported by</span><span>{{ item.reporter_name }}</span></div>
+      <div class="detail-fact"><span>Contact</span><span>{{ item.contact_info }}</span></div>
+    </div>
+
+    {% if item.description %}
+      <p>{{ item.description }}</p>
+    {% endif %}
+
+    {% if current_user.is_authenticated and current_user.id != item.user_id and item.status == 'open' %}
+      <form method="post" action="{{ url_for('submit_claim', item_id=item.id) }}" style="margin-top:20px;">
+        <div class="form-row">
+          <label for="message">
+            {{ "Describe why you believe this is yours" if item.item_type == 'lost' else "Describe where/how you'd like to claim this" }}
+          </label>
+          <textarea id="message" name="message" required placeholder="Add identifying details to help verify ownership…"></textarea>
+        </div>
+        <button type="submit" class="btn btn-accent btn-block">
+          {{ "This is mine — submit claim" if item.item_type == 'lost' else "I think this is mine" }}
+        </button>
+      </form>
+    {% elif not current_user.is_authenticated %}
+      <a href="{{ url_for('login', next=request.path) }}" class="btn btn-outline btn-block" style="margin-top:20px;">Log in to submit a claim</a>
+    {% endif %}
+
+    {% if current_user.is_authenticated and current_user.id == item.user_id %}
+      <h3 style="margin-top:28px;">Claims on this item</h3>
+      {% if claims %}
+        <div class="claim-list">
+          {% for c in claims %}
+            <div class="claim-item">
+              <div class="claim-meta">
+                <span>{{ c.claimant_name }}</span>
+                <span class="status-pill status-pill--{{ 'open' if c.status=='pending' else ('resolved' if c.status=='accepted' else 'matched') }}">{{ c.status }}</span>
+              </div>
+              <p>{{ c.message }}</p>
+              {% if c.status == 'pending' %}
+                <div class="claim-actions">
+                  <form method="post" action="{{ url_for('respond_claim', claim_id=c.id) }}">
+                    <input type="hidden" name="action" value="accepted">
+                    <button type="submit" class="btn btn-found btn-sm">Accept</button>
+                  </form>
+                  <form method="post" action="{{ url_for('respond_claim', claim_id=c.id) }}">
+                    <input type="hidden" name="action" value="rejected">
+                    <button type="submit" class="btn btn-outline btn-sm">Reject</button>
+                  </form>
+                </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="form-help">No claims yet on this item.</p>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

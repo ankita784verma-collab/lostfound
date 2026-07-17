@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="dash-grid">
+  <div class="dash-header">
+    <h1>Hi, {{ current_user.full_name.split(' ')[0] }} 👋</h1>
+    <p>Manage your reports and review claims from the community.</p>
+  </div>
+
+  <div class="dash-tables">
+    <div class="dash-table">
+      <h3>My reports</h3>
+      {% if my_items %}
+        <table>
+          <thead>
+            <tr><th>Ticket</th><th>Title</th><th>Type</th><th>Status</th><th>Reported</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for item in my_items %}
+              <tr>
+                <td>#{{ '%05d' % item.id }}</td>
+                <td>{{ item.title }}</td>
+                <td><span class="tag-type {{ 'tag-type--lost' if item.item_type=='lost' else 'tag-type--found' }}">{{ item.item_type }}</span></td>
+                <td><span class="status-pill status-pill--{{ item.status }}">{{ item.status }}</span></td>
+                <td>{{ item.created_at.strftime('%d %b %Y') }}</td>
+                <td><a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-outline btn-sm">View</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state">
+          <p>You haven't reported any items yet.</p>
+          <a href="{{ url_for('report_item', item_type='lost') }}" class="btn btn-primary btn-sm">Report an item</a>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="dash-table">
+      <h3>Claims on my items</h3>
+      {% if claims_on_my_items %}
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Claimant</th><th>Message</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for c in claims_on_my_items %}
+              <tr>
+                <td><a href="{{ url_for('item_detail', item_id=c.item_id) }}">{{ c.item_title }}</a></td>
+                <td>{{ c.claimant_name }}</td>
+                <td>{{ c.message[:60] }}{% if c.message|length > 60 %}…{% endif %}</td>
+                <td><span class="status-pill status-pill--{{ 'open' if c.status=='pending' else ('resolved' if c.status=='accepted' else 'matched') }}">{{ c.status }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state"><p>No one has claimed your items yet.</p></div>
+      {% endif %}
+    </div>
+
+    <div class="dash-table">
+      <h3>Claims I've submitted</h3>
+      {% if my_claims %}
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Message</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for c in my_claims %}
+              <tr>
+                <td><a href="{{ url_for('item_detail', item_id=c.item_id) }}">{{ c.item_title }}</a></td>
+                <td>{{ c.message[:60] }}{% if c.message|length > 60 %}…{% endif %}</td>
+                <td><span class="status-pill status-pill--{{ 'open' if c.status=='pending' else ('resolved' if c.status=='accepted' else 'matched') }}">{{ c.status }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="empty-state"><p>You haven't submitted any claims yet.</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

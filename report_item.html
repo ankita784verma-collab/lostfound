@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Report {{ item_type }} item — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <div class="type-toggle">
+      <a href="{{ url_for('report_item', item_type='lost') }}" class="{{ 'active lost' if item_type=='lost' }}">I lost something</a>
+      <a href="{{ url_for('report_item', item_type='found') }}" class="{{ 'active found' if item_type=='found' }}">I found something</a>
+    </div>
+
+    <h1>{{ 'Report a lost item' if item_type=='lost' else 'Report a found item' }}</h1>
+    <p class="sub">
+      {% if item_type == 'lost' %}
+        Share the details — the more specific, the easier it is for someone to recognize it.
+      {% else %}
+        Thank you for handing this in. Details help the rightful owner confirm it's theirs.
+      {% endif %}
+    </p>
+
+    <form method="post" enctype="multipart/form-data">
+      <div class="form-row">
+        <label for="title">Item title</label>
+        <input type="text" id="title" name="title" placeholder="e.g. Black leather wallet" required value="{{ form.get('title','') }}">
+      </div>
+
+      <div class="form-two-col">
+        <div class="form-row">
+          <label for="category">Category</label>
+          <select id="category" name="category" required>
+            <option value="">Select a category</option>
+            {% for c in categories %}
+              <option value="{{ c }}" {{ 'selected' if form.get('category')==c }}>{{ c }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-row">
+          <label for="event_date">{{ 'Date lost' if item_type=='lost' else 'Date found' }}</label>
+          <input type="date" id="event_date" name="event_date" required value="{{ form.get('event_date','') }}">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" placeholder="e.g. Main Library, 2nd floor" required value="{{ form.get('location','') }}">
+      </div>
+
+      <div class="form-row">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Color, brand, distinguishing marks, contents…">{{ form.get('description','') }}</textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="contact_info">Contact info</label>
+        <input type="text" id="contact_info" name="contact_info" placeholder="Email or phone number" required value="{{ form.get('contact_info','') }}">
+        <p class="form-help">Shown to people who want to claim or return this item.</p>
+      </div>
+
+      <div class="form-row">
+        <label for="image-input">Photo (optional)</label>
+        <input type="file" id="image-input" name="image" accept="image/png, image/jpeg, image/gif, image/webp">
+        <img id="image-preview" alt="Preview" style="display:none; margin-top:10px; max-height:200px; border-radius:8px; border:1px solid var(--color-border);">
+      </div>
+
+      <button type="submit" class="btn {{ 'btn-lost' if item_type=='lost' else 'btn-found' }} btn-block" style="margin-top:8px;">
+        {{ 'Submit lost report' if item_type=='lost' else 'Submit found report' }}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Lost & Found Portal — Reunite what's missing{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-grid">
+    <div>
+      <span class="hero-eyebrow">Community lost &amp; found board</span>
+      <h1>Every <span class="accent-lost">lost</span> item deserves a way back to its <span class="accent-found">found</span> ending.</h1>
+      <p class="lead">Report what you've lost, post what you've found, and let the community help close the loop — no middleman, no lost cause.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('report_item', item_type='lost') }}" class="btn btn-lost">Report a lost item</a>
+        <a href="{{ url_for('report_item', item_type='found') }}" class="btn btn-found">Report a found item</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="num" data-count="{{ stats.lost_count }}">0</span><span class="label">Lost reports</span></div>
+        <div class="hero-stat"><span class="num" data-count="{{ stats.found_count }}">0</span><span class="label">Found reports</span></div>
+        <div class="hero-stat"><span class="num" data-count="{{ stats.resolved_count }}">0</span><span class="label">Reunited</span></div>
+        <div class="hero-stat"><span class="num" data-count="{{ stats.user_count }}">0</span><span class="label">Members</span></div>
+      </div>
+    </div>
+
+    <form class="search-panel" action="{{ url_for('browse') }}" method="get">
+      <h3>Quick search</h3>
+      <p class="sub">Looking for something specific? Start here.</p>
+      <div class="search-field">
+        <label for="q">Keyword</label>
+        <input type="text" id="q" name="q" placeholder="e.g. black wallet, blue backpack">
+      </div>
+      <div class="search-field">
+        <label for="category">Category</label>
+        <select id="category" name="category">
+          <option value="">Any category</option>
+          {% for c in categories %}
+            <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="search-field">
+        <label for="location">Location</label>
+        <input type="text" id="location" name="location" placeholder="e.g. Library, Main Gate">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Search items</button>
+    </form>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Recently lost</h2>
+        <p>Freshly reported — someone out there is missing these.</p>
+      </div>
+      <a href="{{ url_for('browse') }}?type=lost" class="btn btn-outline btn-sm">View all lost →</a>
+    </div>
+    {% if recent_lost %}
+      <div class="tag-grid">
+        {% for item in recent_lost %}
+          <a class="tag-card" href="{{ url_for('item_detail', item_id=item.id) }}">
+            <div class="tag-card-media">
+              {% if item.image_path %}
+                <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" alt="{{ item.title }}" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 5 6v6c0 5 3 8.5 7 9 4-.5 7-4 7-9V6l-7-4Z"/></svg>
+              {% endif %}
+            </div>
+            <div class="tag-card-body">
+              <span class="tag-type tag-type--lost">lost</span>
+              <h4>{{ item.title }}</h4>
+              <div class="meta">📍 {{ item.location }}</div>
+              <div class="meta">🗓️ {{ item.event_date }}</div>
+              <div class="tag-id">
+                <span>TICKET #{{ '%05d' % item.id }}</span>
+                <span class="status-pill status-pill--{{ item.status }}">{{ item.status }}</span>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">No lost items reported yet.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="section" style="padding-top:0;">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Recently found</h2>
+        <p>Someone handed these in — maybe one of them is yours.</p>
+      </div>
+      <a href="{{ url_for('browse') }}?type=found" class="btn btn-outline btn-sm">View all found →</a>
+    </div>
+    {% if recent_found %}
+      <div class="tag-grid">
+        {% for item in recent_found %}
+          <a class="tag-card" href="{{ url_for('item_detail', item_id=item.id) }}">
+            <div class="tag-card-media">
+              {% if item.image_path %}
+                <img src="{{ url_for('static', filename='uploads/' + item.image_path) }}" alt="{{ item.title }}" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2 5 6v6c0 5 3 8.5 7 9 4-.5 7-4 7-9V6l-7-4Z"/></svg>
+              {% endif %}
+            </div>
+            <div class="tag-card-body">
+              <span class="tag-type tag-type--found">found</span>
+              <h4>{{ item.title }}</h4>
+              <div class="meta">📍 {{ item.location }}</div>
+              <div class="meta">🗓️ {{ item.event_date }}</div>
+              <div class="tag-id">
+                <span>TICKET #{{ '%05d' % item.id }}</span>
+                <span class="status-pill status-pill--{{ item.status }}">{{ item.status }}</span>
+              </div>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="empty-state">No found items reported yet.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

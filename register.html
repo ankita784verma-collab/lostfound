@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Sign up — Lost & Found Portal{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <div class="form-card">
+    <h1>Create your account</h1>
+    <p class="sub">Join the community to report and claim items.</p>
+    <form method="post" action="{{ url_for('register') }}">
+      <div class="form-row">
+        <label for="full_name">Full name</label>
+        <input type="text" id="full_name" name="full_name" required value="{{ form.get('full_name','') }}">
+      </div>
+      <div class="form-row">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required value="{{ form.get('email','') }}">
+      </div>
+      <div class="form-row">
+        <label for="phone">Phone (optional)</label>
+        <input type="tel" id="phone" name="phone" value="{{ form.get('phone','') }}">
+      </div>
+      <div class="form-two-col">
+        <div class="form-row">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required minlength="6">
+        </div>
+        <div class="form-row">
+          <label for="confirm_password">Confirm password</label>
+          <input type="password" id="confirm_password" name="confirm_password" required minlength="6">
+        </div>
+      </div>
+      <p class="form-help">Use at least 6 characters.</p>
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:10px;">Create account</button>
+    </form>
+    <p class="form-footer-link">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Lost & Found Portal{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<header class="navbar">
+  <div class="navbar-inner">
+    <a href="{{ url_for('index') }}" class="brand">
+      <span class="brand-tag" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2 5 6v6c0 5 3 8.5 7 9 4-.5 7-4 7-9V6l-7-4Z"/>
+          <circle cx="12" cy="10" r="2.4"/>
+        </svg>
+      </span>
+      <span class="brand-word">Lost<span class="brand-dot">&amp;</span>Found</span>
+    </a>
+
+    <input type="checkbox" id="nav-toggle" class="nav-toggle">
+    <label for="nav-toggle" class="nav-burger" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </label>
+
+    <nav class="nav-links">
+      <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint=='index' }}">Home</a>
+      <a href="{{ url_for('browse') }}" class="{{ 'active' if request.endpoint=='browse' }}">Browse</a>
+      <a href="{{ url_for('report_item', item_type='lost') }}" class="nav-pill nav-pill--lost">Report Lost</a>
+      <a href="{{ url_for('report_item', item_type='found') }}" class="nav-pill nav-pill--found">Report Found</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint=='dashboard' }}">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="nav-user">Logout ({{ current_user.full_name.split(' ')[0] }})</a>
+      {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint=='login' }}">Login</a>
+        <a href="{{ url_for('register') }}" class="nav-cta">Sign up</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<div class="flash-wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="flash flash--{{ category }}">
+          <span>{{ message }}</span>
+          <button class="flash-close" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">Lost<span class="brand-dot">&amp;</span>Found</div>
+    <p>A community bulletin board for reuniting people with what they've misplaced.</p>
+    <div class="footer-links">
+      <a href="{{ url_for('index') }}">Home</a>
+      <a href="{{ url_for('browse') }}">Browse items</a>
+      <a href="{{ url_for('export_items_csv') }}">Export data (CSV)</a>
+    </div>
+    <p class="footer-note">&copy; {{ current_year }} Lost &amp; Found Portal. Built for campuses, offices &amp; neighborhoods.</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
